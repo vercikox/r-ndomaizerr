@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чарівна лотерея ✨</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #ffd700, #ff69b4, #87ceeb, #98fb98);
+            background-size: 400% 400%;
+            animation: gradientMove 8s infinite ease-in-out;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+        }
+        .footer {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 0px 0px 15px rgba(255, 255, 255, 1);
+        }
+        input, button {
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .exclude-input {
+            width: 80%;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+        }
+        button {
+            background: #ff69b4;
+            color: #fff;
+            padding: 15px 40px;
+            font-weight: bold;
+            box-shadow: 0px 5px 15px rgba(255, 105, 180, 0.5);
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .history {
+            margin-top: 40px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .history span {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">🌟 Ком'юніті творчих людей 🌟</div>
+    <div class="container">
+        <h1>Іскра випадковості ✨</h1>
+        <div class="range">
+            <label for="min">Від:</label>
+            <input type="number" id="min" value="1" min="1">
+            <label for="max">До:</label>
+            <input type="number" id="max" value="100" min="1">
+        </div>
+        <input type="text" id="exclude" class="exclude-input" placeholder="Введіть числа для виключення (через кому)">
+        <button onclick="generateNumber()">🎲 Випробуй удачу!</button>
+        <div class="history">
+            <h3>✨ Переможці ✨</h3>
+            <div id="historyDisplay"></div>
+        </div>
+    </div>
+    <script>
+        let history = [];
+        let mustInclude = [19, 22]; // ← Додай сюди потрібні обов'язкові числа
+
+        function generateNumber() {
+            let min = parseInt(document.getElementById('min').value);
+            let max = parseInt(document.getElementById('max').value);
+            let exclude = document.getElementById('exclude').value
+                .split(',')
+                .map(num => parseInt(num.trim()))
+                .filter(num => !isNaN(num));
+
+            let num;
+
+            while (mustInclude.length > 0) {
+                num = mustInclude.shift();
+                if (!exclude.includes(num) && !history.includes(num)) {
+                    history.push(num);
+                    updateHistory();
+                    showConfetti();
+                    return;
+                }
+            }
+
+            num = getRandom(min, max, exclude);
+            history.push(num);
+            updateHistory();
+            showConfetti();
+        }
+
+        function getRandom(min, max, exclude) {
+            let num;
+            let attempts = 1000;
+            do {
+                num = Math.floor(Math.random() * (max - min + 1)) + min;
+                attempts--;
+            } while ((exclude.includes(num) || history.includes(num)) && attempts > 0);
+            return num;
+        }
+
+        function updateHistory() {
+            const historyDisplay = document.getElementById('historyDisplay');
+            historyDisplay.innerHTML = history.map(num => `<span>${num}</span>`).join(' ');
+        }
+
+        function showConfetti() {
+            const confettiSettings = { target: 'confetti-canvas' };
+            const confetti = new ConfettiGenerator(confettiSettings);
+            confetti.render();
+            setTimeout(() => confetti.clear(), 3000);
+        }
+    </script>
+    <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/confetti-js"></script>
+</body>
+</html>
